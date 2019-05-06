@@ -29,8 +29,8 @@ public class DeleveryRobot {
 
 	Wheel backMotor = WheeledChassis.modelWheel(Motor.D, 30).offset(0);
 	Wheel sonicMotor = WheeledChassis.modelWheel(Motor.A, 30).offset(0);
-	Wheel rightWheel = WheeledChassis.modelWheel(Motor.C, 56).offset(55.80);
-	Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 56).offset(-55.80);
+	Wheel rightWheel = WheeledChassis.modelWheel(Motor.C, 55.130).offset(65.00);//55,8
+	Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 55.5).offset(-65.00);
 	Arbitrator arb;
 	MovePilot pilot;
 	Queue<Path> pathList;
@@ -42,9 +42,9 @@ public class DeleveryRobot {
 	String filePath = "denmark.svg";
 	ShortestPathFinder pathFinder;
 	int speed_130 = 130;
-	int speed_100 = 100;
-	int acc_100 = 100;
+	int speed_90 = 90;
 	int acc_80 = 80;
+	int acc_50 = 50;
 	LineMap map;
 	public EV3 brick = (EV3) BrickFinder.getDefault();
 
@@ -61,8 +61,8 @@ public class DeleveryRobot {
 		try {
 			map = new SVGMapLoader(new FileInputStream(filePath)).readLineMap();
 			pathFinder = new ShortestPathFinder(map);
-			map.flip();
-			pathFinder.lengthenLines(30);
+			//map.flip();
+			pathFinder.lengthenLines(80);
 		} catch (FileNotFoundException | XMLStreamException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -72,10 +72,10 @@ public class DeleveryRobot {
 
 	public void startAbitrater() {
 		pathList = new LinkedList<Path>();
-		backMotor.getMotor().setAcceleration(acc_80);
-		backMotor.getMotor().setSpeed(speed_100);
-		sonicMotor.getMotor().setAcceleration(acc_80);
-		sonicMotor.getMotor().setSpeed(speed_100);
+		backMotor.getMotor().setAcceleration(acc_50);
+		backMotor.getMotor().setSpeed(speed_90);
+		sonicMotor.getMotor().setAcceleration(acc_50);
+		sonicMotor.getMotor().setSpeed(speed_90);
 		try (EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(brick.getPort("S4"))) {
 			RangeFinderAdapter ultrasonicAdapter = new RangeFinderAdapter(ultrasonicSensor);
 
@@ -83,10 +83,10 @@ public class DeleveryRobot {
 			Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel },
 					WheeledChassis.TYPE_DIFFERENTIAL);
 			pilot = new MovePilot(chassis);
-			pilot.setLinearAcceleration(acc_100);
+			pilot.setLinearAcceleration(acc_80);
 			pilot.setLinearSpeed(speed_130);
-			pilot.setAngularAcceleration(acc_80);
-			pilot.setAngularSpeed(speed_100);
+			pilot.setAngularAcceleration(acc_50);
+			pilot.setAngularSpeed(speed_90);
 			Navigator navi = new Navigator(pilot);
 			Behavior stopEscapeButton = new StopEscapeButton();
 			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick);
