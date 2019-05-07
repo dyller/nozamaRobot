@@ -1,5 +1,7 @@
 package behavier;
 
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -77,20 +79,20 @@ public class findpath implements Behavior {
 
 	@Override
 	public void action() {
-		
+
 		done = false;
-		productDelivered =false;
+		productDelivered = false;
 		_pathList.clear();
 		if (_pathList.isEmpty()) {
 			try {
 				LCD.clear();
 				LCD.drawString("Calculating route", 0, 5);
-				LCD.drawString("start: " + _navi.getPoseProvider().getPose().getHeading(), 0, 6);
 				_navi.getPoseProvider().setPose(start.getPose());
 				Delay.msDelay(500);
 				// pathList.add(_pathFinder.findRoute(_distiantion.getPose(), start));
 				_pathList.add(_pathFinder.findRoute(start.getPose(), _distiantion));
-				//_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
+				// _pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(),
+				// start));
 				Delay.msDelay(500);
 				_navi.setPath(_pathList.poll());
 				Delay.msDelay(500);
@@ -106,17 +108,9 @@ public class findpath implements Behavior {
 		}
 		while (!suppress && !done) {
 			if (!productDelivered) {
-				_navi.singleStep(true);
 				Delay.msDelay(500);
 				_navi.followPath();
-				LCD.drawString(_distiantion.getX() + "//" + _distiantion.getY(), 0, 4);
 				if (_navi.pathCompleted()) {
-					try {
-						_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
-					} catch (DestinationUnreachableException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 					LCD.clear();
 					LCD.drawString("I reach the destination", 0, 5);
 					Sound.beep();
@@ -125,31 +119,28 @@ public class findpath implements Behavior {
 					LCD.clear();
 					LCD.drawString("Route done", 0, 5);
 					_backMotor.getMotor().stop();
+					LCD.clear();
+					LCD.drawString("Calculating path to home", 0, 5);
+					try {
 						LCD.clear();
-						LCD.drawString("Calculating path to home", 0, 5);
-						LCD.drawString("Heading" + _navi.getPoseProvider().getPose().getHeading(), 0, 6);
+						LCD.drawString("Calculating back", 0, 5);
+						_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
+					} catch (DestinationUnreachableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					_navi.setPath(_pathList.poll());
-					_navi.followPath();
-						//_navi.setPath(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
-					/*	_navi.singleStep(true);
-						Delay.msDelay(500);
-						_navi.followPath();
-						LCD.drawString("Calculated", 0, 5);*/
-					
-				}/*
-					 * else { Sound.twoBeeps(); LCD.clear(); LCD.drawString("Help, Im lost", 0, 3);
-					 * LCD.drawString("Pose: " + _navi.getPoseProvider().getPose().getX() +"|"+
-					 * _navi.getPoseProvider().getPose().getY(), 0, 4); LCD.drawString("Waypoint: "
-					 * + _navi.getWaypoint().getX() + "|"+ _navi.getPoseProvider().getPose().getY(),
-					 * 0, 5); }
-					 */
+
+				}
 			} else if (productDelivered && _navi.pathCompleted()) {
-				
-						LCD.clear();
-						LCD.drawString("Im at the central!", 0, 5);
-						Sound.beep();
-						done = true;
-						go = false;
+
+				LCD.clear();
+				LCD.drawString("Im at the central!", 0, 5);
+				Sound.beep();
+				done = true;
+				go = false;
+			} else {
+				_navi.followPath();
 			}
 			Thread.yield();
 		}

@@ -29,8 +29,8 @@ public class DeleveryRobot {
 
 	Wheel backMotor = WheeledChassis.modelWheel(Motor.D, 30).offset(0);
 	Wheel sonicMotor = WheeledChassis.modelWheel(Motor.A, 30).offset(0);
-	Wheel rightWheel = WheeledChassis.modelWheel(Motor.C, 55.130).offset(65.00);//55,8
-	Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 55.5).offset(-65.00);
+	Wheel rightWheel = WheeledChassis.modelWheel(Motor.C, 55.130).offset(55.7);//55,8//65//56
+	Wheel leftWheel = WheeledChassis.modelWheel(Motor.B, 55.130)/*55.5,55.130*/.offset(-55.9);//55.7,
 	Arbitrator arb;
 	MovePilot pilot;
 	Queue<Path> pathList;
@@ -43,7 +43,7 @@ public class DeleveryRobot {
 	ShortestPathFinder pathFinder;
 	int speed_130 = 130;
 	int speed_90 = 90;
-	int acc_80 = 80;
+	int acc_85 = 85;
 	int acc_50 = 50;
 	LineMap map;
 	public EV3 brick = (EV3) BrickFinder.getDefault();
@@ -61,7 +61,7 @@ public class DeleveryRobot {
 		try {
 			map = new SVGMapLoader(new FileInputStream(filePath)).readLineMap();
 			pathFinder = new ShortestPathFinder(map);
-			//map.flip();
+			map.flip();
 			pathFinder.lengthenLines(80);
 		} catch (FileNotFoundException | XMLStreamException e) {
 			// TODO Auto-generated catch block
@@ -83,7 +83,7 @@ public class DeleveryRobot {
 			Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel },
 					WheeledChassis.TYPE_DIFFERENTIAL);
 			pilot = new MovePilot(chassis);
-			pilot.setLinearAcceleration(acc_80);
+			pilot.setLinearAcceleration(acc_85);
 			pilot.setLinearSpeed(speed_130);
 			pilot.setAngularAcceleration(acc_50);
 			pilot.setAngularSpeed(speed_90);
