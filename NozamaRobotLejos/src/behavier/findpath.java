@@ -1,8 +1,5 @@
 package behavier;
 
-import java.awt.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Queue;
 
 import lejos.hardware.Button;
@@ -10,11 +7,8 @@ import lejos.hardware.Key;
 import lejos.hardware.Sound;
 import lejos.hardware.ev3.EV3;
 import lejos.hardware.lcd.LCD;
-import lejos.hardware.motor.EV3MediumRegulatedMotor;
-import lejos.robotics.ColorAdapter;
 import lejos.robotics.chassis.Wheel;
 import lejos.robotics.navigation.DestinationUnreachableException;
-import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.pathfinding.Path;
@@ -89,10 +83,7 @@ public class findpath implements Behavior {
 				LCD.drawString("Calculating route", 0, 5);
 				_navi.getPoseProvider().setPose(start.getPose());
 				Delay.msDelay(500);
-				// pathList.add(_pathFinder.findRoute(_distiantion.getPose(), start));
 				_pathList.add(_pathFinder.findRoute(start.getPose(), _distiantion));
-				// _pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(),
-				// start));
 				Delay.msDelay(500);
 				_navi.setPath(_pathList.poll());
 				Delay.msDelay(500);
@@ -108,42 +99,62 @@ public class findpath implements Behavior {
 		}
 		while (!suppress && !done) {
 			if (!productDelivered) {
-				Delay.msDelay(500);
 				_navi.followPath();
 				if (_navi.pathCompleted()) {
 					LCD.clear();
-					LCD.drawString("I reach the destination", 0, 5);
-					Sound.beep();
-					_backMotor.getMotor().rotate(-360);
-					productDelivered = true;
-					LCD.clear();
-					LCD.drawString("Route done", 0, 5);
-					_backMotor.getMotor().stop();
-					LCD.clear();
-					LCD.drawString("Calculating path to home", 0, 5);
-					try {
-						LCD.clear();
-						LCD.drawString("Calculating back", 0, 5);
-						_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
-					} catch (DestinationUnreachableException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					_navi.setPath(_pathList.poll());
-
+					LCD.drawString("I reach destination", 0, 5);
+					deliverProduct();
 				}
-			} else if (productDelivered && _navi.pathCompleted()) {
-
-				LCD.clear();
-				LCD.drawString("Im at the central!", 0, 5);
-				Sound.beep();
-				done = true;
-				go = false;
-			} else {
+			} else if (productDelivered) {
 				_navi.followPath();
+				if (_navi.pathCompleted()) {
+					Sound.beep();
+					LCD.clear();
+					LCD.drawString("Im at the central", 0, 5);
+					done = true;
+					go = false;
+				}
 			}
+			/*
+			 * if (!productDelivered) { Delay.msDelay(500); _navi.followPath(); if
+			 * (_navi.pathCompleted()) { LCD.clear();
+			 * LCD.drawString("I reach the destination", 0, 5); Sound.beep();
+			 * _backMotor.getMotor().rotate(-360); productDelivered = true; LCD.clear();
+			 * LCD.drawString("Route done", 0, 5); _backMotor.getMotor().stop();
+			 * LCD.clear(); LCD.drawString("Calculating path to home", 0, 5); try {
+			 * LCD.clear(); LCD.drawString("Calculating back", 0, 5);
+			 * _pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(),
+			 * start)); } catch (DestinationUnreachableException e) { // TODO Auto-generated
+			 * catch block e.printStackTrace(); } _navi.setPath(_pathList.poll());
+			 * 
+			 * } } else if (productDelivered && _navi.pathCompleted()) {
+			 * 
+			 * LCD.clear(); LCD.drawString("Im at the central!", 0, 5); Sound.beep(); done =
+			 * true; go = false; } else { _navi.followPath(); }
+			 */
 			Thread.yield();
 		}
+	}
+
+	private void deliverProduct() {
+		// TODO Auto-generated method stub
+		LCD.clear();
+		LCD.drawString("I reach the destination", 0, 5);
+		Sound.beep();
+		_backMotor.getMotor().rotate(-360);
+		productDelivered = true;
+		_backMotor.getMotor().close();
+		try {
+			LCD.clear();
+			LCD.drawString("Route 2 home", 0, 5);
+			Delay.msDelay(500);
+			_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
+			Delay.msDelay(1500);
+		} catch (DestinationUnreachableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		_navi.followPath(_pathList.poll());
 	}
 
 	@Override

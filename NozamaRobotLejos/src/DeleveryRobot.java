@@ -63,6 +63,7 @@ public class DeleveryRobot {
 			pathFinder = new ShortestPathFinder(map);
 			map.flip();
 			pathFinder.lengthenLines(80);
+			
 		} catch (FileNotFoundException | XMLStreamException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -72,14 +73,14 @@ public class DeleveryRobot {
 
 	public void startAbitrater() {
 		pathList = new LinkedList<Path>();
-		backMotor.getMotor().setAcceleration(acc_50);
-		backMotor.getMotor().setSpeed(speed_90);
+		backMotor.getMotor().setAcceleration(acc_85);
+		backMotor.getMotor().setSpeed(speed_130);
 		sonicMotor.getMotor().setAcceleration(acc_50);
 		sonicMotor.getMotor().setSpeed(speed_90);
 		try (EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(brick.getPort("S4"))) {
 			RangeFinderAdapter ultrasonicAdapter = new RangeFinderAdapter(ultrasonicSensor);
 
-			Waypoint distiantion = esbjerg;
+			Waypoint distiantion = odense;
 			Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel },
 					WheeledChassis.TYPE_DIFFERENTIAL);
 			pilot = new MovePilot(chassis);
@@ -90,7 +91,7 @@ public class DeleveryRobot {
 			Navigator navi = new Navigator(pilot);
 			Behavior stopEscapeButton = new StopEscapeButton();
 			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick);
-			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, pilot);
+			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder);
 			Behavior[] behaiverArray = { findPath, Ultrasonic, stopEscapeButton };
 			arb = new Arbitrator(behaiverArray);
 			arb.go();
