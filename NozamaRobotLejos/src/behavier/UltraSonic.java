@@ -20,19 +20,20 @@ public class UltraSonic implements Behavior {
 	Navigator _navi;
 	int _heading;
 	ShortestPathFinder _pathfinder;
-	boolean supressed = false;
+	boolean supressed;
 	private int minDistance = 10;
 	Pose _naviPose;
 	boolean objectRight = false;
 	boolean objectLeft = false;
 	boolean done = true;
 
-	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder) {
+	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder, boolean go) {
 		// TODO Auto-generated constructor stub
 		this._ultrasonicAdapter = ultrasonicAdapter;
 		this._sonicMotor = sonicMotor;
 		this._navi = navi;
 		this._pathfinder = pathFinder;
+		this._go = go;
 	}
 
 	@Override
@@ -47,6 +48,7 @@ public class UltraSonic implements Behavior {
 		// TODO Auto-generated method stub
 		Delay.msDelay(20);
 		done = false;
+
 		_navi.stop();
 		supressed = false;
 		System.out.println("action");
@@ -61,7 +63,7 @@ public class UltraSonic implements Behavior {
 		_naviPose = _navi.getPoseProvider().getPose();
 		checkHeading();
 		printLine();
-
+		_sonicMotor.getMotor().rotate(30);
 	}
 
 	private void printLine() {
@@ -105,6 +107,7 @@ public class UltraSonic implements Behavior {
 			try {
 				System.out.println("calculate route");
 				_pathfinder.findRoute(_naviPose, _navi.getPath().get(_navi.getPath().size()-1));
+
 			} catch (DestinationUnreachableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
