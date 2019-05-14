@@ -20,30 +20,34 @@ public class UltraSonic implements Behavior {
 	Navigator _navi;
 	int _heading;
 	ShortestPathFinder _pathfinder;
-	boolean supressed = false;
+	boolean supressed;
 	private int minDistance = 10;
 	Pose _naviPose;
 	boolean objectRight = false;
+	boolean _go;
 	boolean objectLeft = false;
 
-	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder) {
+	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder, boolean go) {
 		// TODO Auto-generated constructor stub
 		this._ultrasonicAdapter = ultrasonicAdapter;
 		this._sonicMotor = sonicMotor;
 		this._navi = navi;
 		this._pathfinder = pathFinder;
+		this._go = go;
 	}
 
 	@Override
 	public boolean takeControl() {
 		// TODO Auto-generated method stub
 		//return false;
-		return _navi.isMoving() && _ultrasonicAdapter.getRange() < minDistance;
+		return !_navi.pathCompleted() && _ultrasonicAdapter.getRange()<minDistance;
 	}
 
 	@Override
 	public void action() {
 		// TODO Auto-generated method stub
+		_go = false;
+		_navi.stop();
 		supressed = false;
 		LCD.clear();
 		LCD.drawString("Obstacle detected", 0, 5);
@@ -55,7 +59,7 @@ public class UltraSonic implements Behavior {
 		_naviPose = _navi.getPoseProvider().getPose();
 		checkHeading();
 		printLine();
-
+		_sonicMotor.getMotor().rotate(30);
 	}
 
 	private void printLine() {
@@ -96,7 +100,7 @@ public class UltraSonic implements Behavior {
 			LCD.drawString("Line added", 0, 5);
 			Delay.msDelay(1000);
 			try {
-				_pathfinder.findRoute(_naviPose, _navi.getPath().get(_navi.getPath().size()-1));
+				_navi.setPath(_pathfinder.findRoute(_naviPose, _navi.getPath().get(_navi.getPath().size()-1)));
 			} catch (DestinationUnreachableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

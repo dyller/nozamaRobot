@@ -26,17 +26,18 @@ public class findpath implements Behavior {
 	Wheel _backMotor;
 	EV3 _brick;
 	DectectObject _detectObject;
-	boolean go = false;
+	boolean _go;
 	boolean suppress = false;
 	boolean done = false;
 	boolean productDelivered = false;
 
 	public findpath(Queue<Path> pathList, Waypoint distiantion, ShortestPathFinder pathFinder, Navigator navi,
-			Wheel backMotor, EV3 brick) {
+			Wheel backMotor, EV3 brick, boolean go) {
 		// TODO Auto-generated constructor stub
 		this._distiantion = distiantion;
 		this._pathFinder = pathFinder;
 		_brick = brick;
+		_go = go;
 		_navi = navi;
 		_pathList = pathList;
 		this._backMotor = backMotor;
@@ -54,7 +55,7 @@ public class findpath implements Behavior {
 				LCD.clear();
 				LCD.drawString("Checking if there is an object", 0, 4);
 				if (checkIfObject())
-					go = true;
+					_go = true;
 			}
 		});
 	}
@@ -68,7 +69,7 @@ public class findpath implements Behavior {
 	@Override
 	public boolean takeControl() {
 		// TODO Auto-generated method stub
-		return go;
+		return _go;
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public class findpath implements Behavior {
 					LCD.clear();
 					LCD.drawString("Im at the central", 0, 5);
 					done = true;
-					go = false;
+					_go = false;
 				}
 			}
 			/*

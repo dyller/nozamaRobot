@@ -45,6 +45,7 @@ public class DeleveryRobot {
 	int speed_90 = 90;
 	int acc_85 = 85;
 	int acc_50 = 50;
+	boolean go;
 	LineMap map;
 	public EV3 brick = (EV3) BrickFinder.getDefault();
 
@@ -76,11 +77,11 @@ public class DeleveryRobot {
 		backMotor.getMotor().setAcceleration(acc_85);
 		backMotor.getMotor().setSpeed(speed_130);
 		sonicMotor.getMotor().setAcceleration(acc_50);
-		sonicMotor.getMotor().setSpeed(speed_90);
+		sonicMotor.getMotor().setSpeed(50);
 		try (EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(brick.getPort("S4"))) {
 			RangeFinderAdapter ultrasonicAdapter = new RangeFinderAdapter(ultrasonicSensor);
 
-			Waypoint distiantion = odense;
+			Waypoint distiantion = esbjerg;
 			Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel },
 					WheeledChassis.TYPE_DIFFERENTIAL);
 			pilot = new MovePilot(chassis);
@@ -90,8 +91,8 @@ public class DeleveryRobot {
 			pilot.setAngularSpeed(speed_90);
 			Navigator navi = new Navigator(pilot);
 			Behavior stopEscapeButton = new StopEscapeButton();
-			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick);
-			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder);
+			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick,go);
+			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder,go );
 			Behavior[] behaiverArray = { findPath, Ultrasonic, stopEscapeButton };
 			arb = new Arbitrator(behaiverArray);
 			arb.go();
