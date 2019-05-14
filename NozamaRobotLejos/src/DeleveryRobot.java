@@ -24,6 +24,7 @@ import lejos.robotics.pathfinding.Path;
 import lejos.robotics.pathfinding.ShortestPathFinder;
 import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
+import lejos.utility.Delay;
 
 public class DeleveryRobot {
 
@@ -49,7 +50,6 @@ public class DeleveryRobot {
 	public EV3 brick = (EV3) BrickFinder.getDefault();
 
 	public static void main(String[] args) {
-
 		// TODO Auto-generated method stub
 
 		DeleveryRobot drobot = new DeleveryRobot();
@@ -79,8 +79,7 @@ public class DeleveryRobot {
 		sonicMotor.getMotor().setSpeed(speed_90);
 		try (EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(brick.getPort("S4"))) {
 			RangeFinderAdapter ultrasonicAdapter = new RangeFinderAdapter(ultrasonicSensor);
-
-			Waypoint distiantion = odense;
+			Waypoint distiantion = esbjerg;
 			Chassis chassis = new WheeledChassis(new Wheel[] { leftWheel, rightWheel },
 					WheeledChassis.TYPE_DIFFERENTIAL);
 			pilot = new MovePilot(chassis);

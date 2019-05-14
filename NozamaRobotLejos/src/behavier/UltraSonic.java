@@ -25,6 +25,7 @@ public class UltraSonic implements Behavior {
 	Pose _naviPose;
 	boolean objectRight = false;
 	boolean objectLeft = false;
+	boolean done = true;
 
 	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder) {
 		// TODO Auto-generated constructor stub
@@ -38,13 +39,17 @@ public class UltraSonic implements Behavior {
 	public boolean takeControl() {
 		// TODO Auto-generated method stub
 		//return false;
-		return _navi.isMoving() && _ultrasonicAdapter.getRange() < minDistance;
+		return _ultrasonicAdapter.getRange() < minDistance ||!done;
 	}
 
 	@Override
 	public void action() {
 		// TODO Auto-generated method stub
+		Delay.msDelay(20);
+		done = false;
+		_navi.stop();
 		supressed = false;
+		System.out.println("action");
 		LCD.clear();
 		LCD.drawString("Obstacle detected", 0, 5);
 		_sonicMotor.getMotor().rotate(30);
@@ -52,6 +57,7 @@ public class UltraSonic implements Behavior {
 		Delay.msDelay(1000);
 		_sonicMotor.getMotor().rotate(-60);
 		objectLeft = _ultrasonicAdapter.getRange() <= 15;
+		_sonicMotor.getMotor().rotate(30);
 		_naviPose = _navi.getPoseProvider().getPose();
 		checkHeading();
 		printLine();
@@ -59,7 +65,9 @@ public class UltraSonic implements Behavior {
 	}
 
 	private void printLine() {
+		System.out.println("printline");
 		if (objectRight && objectLeft) {
+			System.out.println("heading: " + _heading);
 			LCD.clear();
 			LCD.drawString("Huge obstacle detected", 0, 5);
 			switch(_heading) {
@@ -94,8 +102,8 @@ public class UltraSonic implements Behavior {
 			}
 			LCD.clear();
 			LCD.drawString("Line added", 0, 5);
-			Delay.msDelay(1000);
 			try {
+				System.out.println("calculate route");
 				_pathfinder.findRoute(_naviPose, _navi.getPath().get(_navi.getPath().size()-1));
 			} catch (DestinationUnreachableException e) {
 				// TODO Auto-generated catch block
@@ -110,6 +118,7 @@ public class UltraSonic implements Behavior {
 				LCD.drawString("Left obstacle detected", 0, 5);
 			}
 		}
+		done = true;
 	}
 
 	private void checkHeading() {

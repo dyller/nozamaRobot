@@ -82,11 +82,13 @@ public class findpath implements Behavior {
 				LCD.clear();
 				LCD.drawString("Calculating route", 0, 5);
 				_navi.getPoseProvider().setPose(start.getPose());
-				Delay.msDelay(500);
+				Delay.msDelay(50);
+				long now = System.currentTimeMillis();
 				_pathList.add(_pathFinder.findRoute(start.getPose(), _distiantion));
-				Delay.msDelay(500);
+				System.out.println("time it take: " + (System.currentTimeMillis()-now));
+				Delay.msDelay(50);
 				_navi.setPath(_pathList.poll());
-				Delay.msDelay(500);
+				Delay.msDelay(50);
 			} catch (DestinationUnreachableException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
