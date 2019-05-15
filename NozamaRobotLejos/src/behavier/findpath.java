@@ -77,7 +77,7 @@ public class findpath implements Behavior {
 
 	@Override
 	public void action() {
-		System.out.print("action findpath");
+		System.out.println("action findpath");
 		done = false;
 		/*productDelivered = false;
 		_pathList.clear();
