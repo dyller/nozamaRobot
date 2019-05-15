@@ -33,7 +33,7 @@ public class UltraSonic implements Behavior {
 		this._sonicMotor = sonicMotor;
 		this._navi = navi;
 		this._pathfinder = pathFinder;
-		this._go = go;
+		//this._go = go;
 	}
 
 	@Override

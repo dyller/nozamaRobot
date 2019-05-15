@@ -2,6 +2,8 @@ package behavier;
 
 import java.util.Queue;
 
+import org.freedesktop.dbus.test.profile.Log;
+
 import lejos.hardware.Button;
 import lejos.hardware.Key;
 import lejos.hardware.Sound;
@@ -28,7 +30,7 @@ public class findpath implements Behavior {
 	DectectObject _detectObject;
 	boolean _go;
 	boolean suppress = false;
-	boolean done = false;
+	boolean done = true;
 	boolean productDelivered = false;
 
 	public findpath(Queue<Path> pathList, Waypoint distiantion, ShortestPathFinder pathFinder, Navigator navi,
@@ -39,6 +41,7 @@ public class findpath implements Behavior {
 		_brick = brick;
 		_go = go;
 		_navi = navi;
+		boolean done = true;
 		_pathList = pathList;
 		this._backMotor = backMotor;
 		Button.ENTER.addKeyListener(new lejos.hardware.KeyListener() {
@@ -69,14 +72,14 @@ public class findpath implements Behavior {
 	@Override
 	public boolean takeControl() {
 		// TODO Auto-generated method stub
-		return _go;
+		return _go && (!_navi.getPath().isEmpty() || !done );
 	}
 
 	@Override
 	public void action() {
-
+		System.out.print("action findpath");
 		done = false;
-		productDelivered = false;
+		/*productDelivered = false;
 		_pathList.clear();
 		if (_pathList.isEmpty()) {
 			try {
@@ -99,9 +102,19 @@ public class findpath implements Behavior {
 		} else {
 			LCD.clear();
 			LCD.drawString("There are paths to get done, yet", 0, 5);
-		}
-		while (!suppress && !done) {
-			if (!productDelivered) {
+		}*/
+		while (!suppress && (!_navi.getPath().isEmpty() || !done )) {
+			_navi.followPath();
+			
+				if(_navi.pathCompleted())
+				{
+					System.out.println("Navi completed done");
+					deliverProduct();
+					
+				}
+		
+			
+			/*if (!productDelivered) {
 				_navi.followPath();
 				if (_navi.pathCompleted()) {
 					LCD.clear();
@@ -117,7 +130,7 @@ public class findpath implements Behavior {
 					done = true;
 					_go = false;
 				}
-			}
+			}*/
 			/*
 			 * if (!productDelivered) { Delay.msDelay(500); _navi.followPath(); if
 			 * (_navi.pathCompleted()) { LCD.clear();
@@ -147,17 +160,8 @@ public class findpath implements Behavior {
 		_backMotor.getMotor().rotate(-360);
 		productDelivered = true;
 		_backMotor.getMotor().close();
-		try {
-			LCD.clear();
-			LCD.drawString("Route 2 home", 0, 5);
-			Delay.msDelay(500);
-			_pathList.add(_pathFinder.findRoute(_navi.getPoseProvider().getPose(), start));
-			Delay.msDelay(1500);
-		} catch (DestinationUnreachableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		_navi.followPath(_pathList.poll());
+		done = true;
+		
 	}
 
 	@Override

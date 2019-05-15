@@ -1,9 +1,16 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import javax.xml.stream.XMLStreamException;
+
+import behavier.NewPath;
 import behavier.StopEscapeButton;
 import behavier.UltraSonic;
 import behavier.findpath;
@@ -49,7 +56,10 @@ public class DeleveryRobot {
 	boolean go;
 	LineMap map;
 	public EV3 brick = (EV3) BrickFinder.getDefault();
-
+	// communicate
+	DataInputStream dis;
+	DataOutputStream dos;
+	int portNumber = 5000;
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
@@ -90,12 +100,25 @@ public class DeleveryRobot {
 			pilot.setAngularAcceleration(acc_50);
 			pilot.setAngularSpeed(speed_90);
 			Navigator navi = new Navigator(pilot);
+			try {
+				ServerSocket server = new ServerSocket(portNumber);
+				Socket s = server.accept();
+				dis = new DataInputStream(s.getInputStream());
+				dos = new DataOutputStream(s.getOutputStream());
 			Behavior stopEscapeButton = new StopEscapeButton();
+			Behavior newPath= new NewPath(dis, dos, navi);
 			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick,go);
-			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder,go );
-			Behavior[] behaiverArray = { findPath, Ultrasonic, stopEscapeButton };
-			arb = new Arbitrator(behaiverArray);
+			//Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder,go );
+			//Behavior[] behaiverArray = { findPath, Ultrasonic, stopEscapeButton };
+			Behavior[] behaiverArray = {newPath,findPath, stopEscapeButton };
+			arb = new Arbitrator(behaiverArray);			
+				
+			
 			arb.go();
-		}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			}
 	}
 }

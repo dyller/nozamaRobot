@@ -37,12 +37,13 @@ public class Main {
 	Waypoint start = new Waypoint(1000, 1100);
 	
 	int portNumber = 5000;
-	String ipAdress = "192.168.137.157";
+	String ipAdress = "192.168.137.114";
 	DataInputStream dis;
 	DataOutputStream dos;
 	public static void main(String[] args) {
 		Main main = new Main();
-		main.calculatePath();
+		//main.calculatePath();
+		main.setupCommunication();
 		
 		// TODO Auto-generated method stub
 	///ShortestPathFinder pathFinder;
@@ -60,6 +61,8 @@ public class Main {
 		
 		 dis = new DataInputStream(s.getInputStream());
 		 dos = new DataOutputStream(s.getOutputStream());
+		 while(true)
+		 {
 		 String readMessage = dis.readUTF();
 		 String[] message = readMessage.split(" ");
 		 switch(message[0])
@@ -77,17 +80,21 @@ public class Main {
 			 break;
 		 case "start":
 			currentPosePotion = start.getPose();
-			destionation = new Waypoint(Double.parseDouble(message[1]),
+			/*destionation = new Waypoint(Double.parseDouble(message[1]),
 					Double.parseDouble(message[2]),
-					Double.parseDouble(message[3]));
+					Double.parseDouble(message[3]));*/
+			destionation = esbjerg;
 			 calculatePath();
 			 for (Waypoint waypoint : shortestPath) {
+				 
 					dos.writeUTF(waypoint.getX() + " " +waypoint.getY() +" " +waypoint.getHeading() );
 					dos.flush();
+					Delay.msDelay(100);
 				} 
 				dos.writeUTF("done");
 				dos.flush();
 			 break;
+		 }
 		 }
 	}
 	catch (IOException e) {
