@@ -26,6 +26,7 @@ import lejos.robotics.mapping.LineMap;
 import lejos.robotics.mapping.SVGMapLoader;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Navigator;
+import lejos.robotics.navigation.Pose;
 import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.pathfinding.Path;
 import lejos.robotics.pathfinding.ShortestPathFinder;
@@ -44,6 +45,7 @@ public class DeleveryRobot {
 	Queue<Path> pathList;
 	Waypoint esbjerg = new Waypoint(440, 2200);
 	Waypoint aarhus = new Waypoint(1300, 3600);
+	Waypoint start = new Waypoint(1000, 1100);
 	Waypoint kolding = new Waypoint(2300, 2200);
 	Waypoint odense = new Waypoint(3600, 2200);
 	Waypoint soenderborg = new Waypoint(2500, 400);
@@ -100,17 +102,18 @@ public class DeleveryRobot {
 			pilot.setAngularAcceleration(acc_50);
 			pilot.setAngularSpeed(speed_90);
 			Navigator navi = new Navigator(pilot);
+			navi.getPoseProvider().setPose(start.getPose());
 			try {
 				ServerSocket server = new ServerSocket(portNumber);
 				Socket s = server.accept();
 				dis = new DataInputStream(s.getInputStream());
 				dos = new DataOutputStream(s.getOutputStream());
 			Behavior stopEscapeButton = new StopEscapeButton();
-			Behavior newPath= new NewPath(dis, dos, navi);
+			Behavior newPath= new NewPath(dis, dos, navi,go);
 			Behavior findPath = new findpath(pathList, distiantion, pathFinder, navi, backMotor, brick,go);
-			//Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi, pathFinder,go );
+			Behavior Ultrasonic = new UltraSonic(ultrasonicAdapter, sonicMotor, navi,dis,dos );
 			//Behavior[] behaiverArray = { findPath, Ultrasonic, stopEscapeButton };
-			Behavior[] behaiverArray = {newPath,findPath, stopEscapeButton };
+			Behavior[] behaiverArray = {findPath,newPath,Ultrasonic, stopEscapeButton };
 			arb = new Arbitrator(behaiverArray);			
 				
 			

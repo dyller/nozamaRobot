@@ -1,12 +1,16 @@
 package calculate;
 
 import java.awt.Canvas;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.Socket;
+import java.net.URL;
 import java.text.ParseException;
 
 import javax.xml.stream.XMLStreamException;
@@ -29,6 +33,12 @@ public class Main {
     ShortestPathFinder pathFinder;
 	String filePath = "C:\\Users\\jacob\\Desktop\\exam\\nozamaRobot\\denmark.svg";
 	//waypoints
+	String[] cities = {"Esbjerg",
+	                    "Aarhus",
+	                    "Kolding",
+	                    "Odense",
+	                    "Sonderborg"};
+	
 	Waypoint esbjerg = new Waypoint(440, 2200);
 	Waypoint aarhus = new Waypoint(1300, 3600);
 	Waypoint kolding = new Waypoint(2300, 2200);
@@ -37,7 +47,7 @@ public class Main {
 	Waypoint start = new Waypoint(1000, 1100);
 	
 	int portNumber = 5000;
-	String ipAdress = "192.168.137.114";
+	String ipAdress = "192.168.137.28";
 	DataInputStream dis;
 	DataOutputStream dos;
 	public static void main(String[] args) {
@@ -52,6 +62,72 @@ public class Main {
 	}
 	void setupCommunication()
 	{
+		String[] parts;
+		String[] preDistanations;
+	/*try {
+		URL urlOrders = new URL("https://us-central1-nozama-58c5d.cloudfunctions.net/orders");
+		HttpURLConnection con;
+		con = (HttpURLConnection) urlOrders.openConnection();
+		con.setRequestMethod("GET");
+		BufferedReader in = new BufferedReader(
+				  new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer content = new StringBuffer();
+				while ((inputLine = in.readLine()) != null) {
+				    content.append(inputLine);
+				}
+				in.close();
+				if(inputLine!=null||inputLine.contains("userAddress"))
+				{
+				    parts = inputLine.split(",");
+					for(String attributes: parts)
+					{
+						if(attributes.contains("userAddress"))
+						{
+							preDistanations = attributes.split(":");
+							for(String address: preDistanations)
+							{*/
+								for(String city: cities)
+								{
+									String test = "\"Esbjerg\"";
+									if(test.contains(city))
+									{
+										switch(city)
+										 {
+										case "Esbjerg": destionation = esbjerg;
+										break;
+										
+										case "Aarhus": destionation = aarhus;
+										break;
+										
+										case "Kolding": destionation = kolding;
+										break;
+										
+										case "Odense": destionation = odense;
+										break;
+										
+										case "Sonderborg": destionation = soenderborg;
+										break;
+										 }
+									
+										System.out.println("distanation: "+destionation.getX()+" : "+destionation.getY()); 
+									}
+								}
+							/*}
+						
+						}
+					}
+				}
+	} catch ( e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}*/
+								try {
+									map = new SVGMapLoader(new FileInputStream(filePath)).readLineMap();
+								} catch (FileNotFoundException | XMLStreamException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
 		Socket s;
 	try {
 		s = new Socket(ipAdress , portNumber);
@@ -68,12 +144,17 @@ public class Main {
 		 switch(message[0])
 		 {
 		 case "newLine":
+			 
 			 addNewLine(Integer.parseInt(message[1]),Integer.parseInt(message[2]),
 					 Integer.parseInt(message[3]), Integer.parseInt(message[4]));
+			 System.out.println("newLine"+Integer.parseInt(message[1])+":"+Integer.parseInt(message[2])+":"+
+					 Integer.parseInt(message[3])+":"+ Integer.parseInt(message[4]));
 			 calculatePath();
 			for (Waypoint waypoint : shortestPath) {
+				 System.out.println(waypoint.getX()+" "+ waypoint.getY());
 				dos.writeUTF(waypoint.getX() + " " +waypoint.getY() +" " +waypoint.getHeading() );
 				dos.flush();
+				Delay.msDelay(100);
 			} 
 			dos.writeUTF("done");
 			dos.flush();
@@ -83,7 +164,8 @@ public class Main {
 			/*destionation = new Waypoint(Double.parseDouble(message[1]),
 					Double.parseDouble(message[2]),
 					Double.parseDouble(message[3]));*/
-			destionation = esbjerg;
+			//destionation = esbjerg;
+			System.out.println("calc Line");
 			 calculatePath();
 			 for (Waypoint waypoint : shortestPath) {
 				 
@@ -94,6 +176,28 @@ public class Main {
 				dos.writeUTF("done");
 				dos.flush();
 			 break;
+		 case "return":
+				currentPosePotion = new Waypoint(Float.parseFloat(message[1]),
+						Float.parseFloat(message[2])).getPose();
+				destionation = start;
+				System.out.println("calc home"+ Float.parseFloat(message[1]) +" "
+						+Float.parseFloat(message[2]));
+				 calculatePath();
+				 for (Waypoint waypoint : shortestPath) {
+					 System.out.println(waypoint.getX()+" "+ waypoint.getY());
+						dos.writeUTF(waypoint.getX() + " " +waypoint.getY() +" " +waypoint.getHeading() );
+						dos.flush();
+						Delay.msDelay(100);
+					} 
+					dos.writeUTF("done");
+					dos.flush();
+				 break;
+		 case "postion":
+				
+				destionation = new Waypoint(Integer.parseInt(message[1]),
+						Integer.parseInt(message[2]));
+				
+				 break;
 		 }
 		 }
 	}
@@ -105,16 +209,10 @@ public class Main {
 	
 	void calculatePath()
 	{
-		try {
-			map = new SVGMapLoader(new FileInputStream(filePath)).readLineMap();
 			pathFinder = new ShortestPathFinder(map);
 			//map.flip();
 			pathFinder.lengthenLines(80);
-			
-		} catch (FileNotFoundException | XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		long now = System.currentTimeMillis();
 	try {
 		shortestPath=pathFinder.findRoute(currentPosePotion, destionation);

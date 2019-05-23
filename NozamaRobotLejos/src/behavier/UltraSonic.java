@@ -1,5 +1,9 @@
 package behavier;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import lejos.hardware.lcd.LCD;
 import lejos.robotics.RangeFinderAdapter;
 import lejos.robotics.chassis.Wheel;
@@ -9,6 +13,8 @@ import lejos.robotics.navigation.DestinationUnreachableException;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 import lejos.robotics.pathfinding.ShortestPathFinder;
 import lejos.robotics.subsumption.Behavior;
 import lejos.utility.Delay;
@@ -19,20 +25,23 @@ public class UltraSonic implements Behavior {
 	Wheel _sonicMotor;
 	Navigator _navi;
 	int _heading;
-	ShortestPathFinder _pathfinder;
+	DataInputStream dis;
+	DataOutputStream dos;
 	boolean supressed;
 	private int minDistance = 10;
 	Pose _naviPose;
 	boolean objectRight = false;
 	boolean objectLeft = false;
 	boolean done = true;
-
-	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor, Navigator navi, ShortestPathFinder pathFinder, boolean go) {
+	Path path = new Path();
+	public UltraSonic(RangeFinderAdapter ultrasonicAdapter, Wheel sonicMotor,
+			Navigator navi, DataInputStream dis, DataOutputStream dos) {
 		// TODO Auto-generated constructor stub
 		this._ultrasonicAdapter = ultrasonicAdapter;
 		this._sonicMotor = sonicMotor;
 		this._navi = navi;
-		this._pathfinder = pathFinder;
+		this.dis = dis;
+		this.dos = dos;
 		//this._go = go;
 	}
 
@@ -50,6 +59,7 @@ public class UltraSonic implements Behavior {
 		done = false;
 
 		_navi.stop();
+		_navi.clearPath();
 		supressed = false;
 		System.out.println("action");
 		LCD.clear();
@@ -63,10 +73,11 @@ public class UltraSonic implements Behavior {
 		_naviPose = _navi.getPoseProvider().getPose();
 		checkHeading();
 		printLine();
-		_sonicMotor.getMotor().rotate(30);
 	}
 
 	private void printLine() {
+		done = false;
+		boolean first = true;
 		System.out.println("printline");
 		if (objectRight && objectLeft) {
 			System.out.println("heading: " + _heading);
@@ -74,45 +85,99 @@ public class UltraSonic implements Behavior {
 			LCD.drawString("Huge obstacle detected", 0, 5);
 			switch(_heading) {
 			case 0:
-				_pathfinder.getMap().add(new Line(
-						_naviPose.getX()+10,
-						_naviPose.getY()+25,
-						_naviPose.getX()+10,
-						_naviPose.getY()-25));
+				postion();
+				try {
+					dos.writeUTF("newLine "
+							+(int)(_naviPose.getX()+10) +" " 
+							+(int)(_naviPose.getY()+25) +" "
+							+(int)(_naviPose.getX()+10) +" "
+							+((int)_naviPose.getY()-25));
+					dos.flush();
+
+					Delay.msDelay(100);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				break;
 			case 1:
-				_pathfinder.getMap().add(new Line(
-						_naviPose.getX()+25,
-						_naviPose.getY()+10,
-						_naviPose.getX()-25,
-						_naviPose.getY()+10));
+				postion();
+				try {
+					dos.writeUTF("newLine "
+							+(int)(_naviPose.getX()+25) +" " 
+							+(int)(_naviPose.getY()+10) +" "
+							+(int)(_naviPose.getX()-25) +" "
+							+(int)(_naviPose.getY()+10));
+					dos.flush();
+
+					Delay.msDelay(100);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				break;
 			case 2:
-				_pathfinder.getMap().add(new Line(
-						_naviPose.getX()-10,
-						_naviPose.getY()+25,
-						_naviPose.getX()-10,
-						_naviPose.getY()-25));
+				postion();
+				try {
+					dos.writeUTF("newLine "
+							+(int)(_naviPose.getX()-10) +" " 
+							+(int)(_naviPose.getY()+25) +" "
+							+(int)(_naviPose.getX()-10) +" "
+							+(int)(_naviPose.getY()-25));
+					dos.flush();
+
+					Delay.msDelay(100);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				break;
 			case 3:
-				_pathfinder.getMap().add(new Line(
-						_naviPose.getX()+25,
-						_naviPose.getY()-10,
-						_naviPose.getX()-25,
-						_naviPose.getY()-10));
+				postion();
+				try {
+					dos.writeUTF("newLine "
+							+(int)(_naviPose.getX()+25) +" " 
+							+(int)(_naviPose.getY()-10) +" "
+							+(int)(_naviPose.getX()-25) +" "
+							+(int)(_naviPose.getY()-10));
+					dos.flush();
+
+					Delay.msDelay(100);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				break;
 			}
 			LCD.clear();
 			LCD.drawString("Line added", 0, 5);
+			while(!supressed) {
 			try {
-				System.out.println("calculate route");
-				_pathfinder.findRoute(_naviPose, _navi.getPath().get(_navi.getPath().size()-1));
-
-			} catch (DestinationUnreachableException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				String message = dis.readUTF();
+				String[] messageSplit = message.split(" ");
+				if(!messageSplit[0].equals("done"))
+				{	
+					if(first)
+					{
+						first= false;
+					}
+					System.out.println("set new path:" +Double.parseDouble(messageSplit[0] )+":"+
+							Double.parseDouble(messageSplit[1]));
+					path.add(new Waypoint(Double.parseDouble(messageSplit[0]),
+							Double.parseDouble(messageSplit[1])));
+				
+				}
+				else {
+					_navi.setPath(path);
+					done = true;
+					supressed = true;
+				}
+				
+			} catch (IOException e) {
+				
 			}
-		} else {
+		} }else {
 			if (objectRight) {
 				LCD.clear();
 				LCD.drawString("Right obstacle detected", 0, 5);
@@ -140,6 +205,20 @@ public class UltraSonic implements Behavior {
 			case 3: //225 to 314
 				_heading = 3;
 			break;
+		}
+	}
+	public void postion()
+	{
+		try {
+			dos.writeUTF("postion "
+					+(int)(_navi.getPoseProvider().getPose().getX()) +" " 
+					+(int)(_navi.getPoseProvider().getPose().getY()));
+			dos.flush();
+
+			Delay.msDelay(100);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
