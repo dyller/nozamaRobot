@@ -23,7 +23,6 @@ public class findpath implements Behavior {
 
 	Queue<Path> _pathList;
 	boolean home = true;
-	Waypoint start = new Waypoint(1000, 1100);
 	Waypoint _distiantion;
 	ShortestPathFinder _pathFinder;
 	Navigator _navi;
@@ -79,7 +78,7 @@ public class findpath implements Behavior {
 
 	@Override
 	public void action() {
-		System.out.println("action findpath");
+		System.out.println("action findpath" + _navi.getPoseProvider().getPose());
 		done = false;
 		suppress = false;
 		

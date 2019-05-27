@@ -1,11 +1,15 @@
 package calculate;
 
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -13,6 +17,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.text.ParseException;
 
+import javax.swing.JFrame;
 import javax.xml.stream.XMLStreamException;
 
 import lejos.robotics.geometry.Line;
@@ -25,8 +30,11 @@ import lejos.robotics.pathfinding.Path;
 import lejos.robotics.pathfinding.ShortestPathFinder;
 import lejos.utility.Delay;
 
-public class Main {
+public class Main extends JFrame {
 	Pose currentPosePotion;
+	Canvas canvas;
+	int canvasX = 400;
+	int canvasy = 400;
 	Waypoint destionation;
 	Path shortestPath;
 	LineMap map;
@@ -47,11 +55,12 @@ public class Main {
 	Waypoint start = new Waypoint(1000, 1100);
 	
 	int portNumber = 5000;
-	String ipAdress = "192.168.137.28";
+	String ipAdress = "192.168.137.253";
 	DataInputStream dis;
 	DataOutputStream dos;
 	public static void main(String[] args) {
 		Main main = new Main();
+		
 		//main.calculatePath();
 		main.setupCommunication();
 		
@@ -60,6 +69,33 @@ public class Main {
 		
 	
 	}
+	Main() 
+    { 
+		
+        super("canvas"); 
+        // create a empty canvas 
+        /*JPanel panel = new JPanel();
+        getContentPane().add(panel);*/
+        
+         canvas = new Canvas() { 
+        	 
+            // paint the canvas 
+            public void paint(Graphics g) 
+            { 
+            	
+  
+            } 
+        }; 
+  
+        // set background 
+        canvas.setBackground(Color.black); 
+  
+        add(canvas); 
+        setSize(canvasX, canvasy); 
+        
+        show(); 
+    }
+	
 	void setupCommunication()
 	{
 		String[] parts;
@@ -147,8 +183,10 @@ public class Main {
 			 
 			 addNewLine(Integer.parseInt(message[1]),Integer.parseInt(message[2]),
 					 Integer.parseInt(message[3]), Integer.parseInt(message[4]));
+			 
 			 System.out.println("newLine"+Integer.parseInt(message[1])+":"+Integer.parseInt(message[2])+":"+
 					 Integer.parseInt(message[3])+":"+ Integer.parseInt(message[4]));
+			 
 			 calculatePath();
 			for (Waypoint waypoint : shortestPath) {
 				 System.out.println(waypoint.getX()+" "+ waypoint.getY());
@@ -160,6 +198,7 @@ public class Main {
 			dos.flush();
 			 break;
 		 case "start":
+			 pathFinder = new ShortestPathFinder(map);
 			currentPosePotion = start.getPose();
 			/*destionation = new Waypoint(Double.parseDouble(message[1]),
 					Double.parseDouble(message[2]),
@@ -177,6 +216,7 @@ public class Main {
 				dos.flush();
 			 break;
 		 case "return":
+			 pathFinder = new ShortestPathFinder(map);
 				currentPosePotion = new Waypoint(Float.parseFloat(message[1]),
 						Float.parseFloat(message[2])).getPose();
 				destionation = start;
@@ -193,9 +233,9 @@ public class Main {
 					dos.flush();
 				 break;
 		 case "postion":
-				
-				destionation = new Waypoint(Integer.parseInt(message[1]),
-						Integer.parseInt(message[2]));
+			 System.out.println("postion: " + Integer.parseInt(message[1])+" "+ Integer.parseInt(message[2]));
+				currentPosePotion = new Waypoint(Integer.parseInt(message[1]),
+						Integer.parseInt(message[2])).getPose();
 				
 				 break;
 		 }
@@ -209,7 +249,7 @@ public class Main {
 	
 	void calculatePath()
 	{
-			pathFinder = new ShortestPathFinder(map);
+		
 			//map.flip();
 			pathFinder.lengthenLines(80);
 		
@@ -224,12 +264,25 @@ public class Main {
 	}
 	void addNewLine(int x, int y, int xEnd, int yEnd)
 	{
+		
 		pathFinder.setMap(map);
 		pathFinder.getMap().add(new Line(
 			x,
 			y,
 			xEnd,
 			yEnd));
+		Graphics g = canvas.getGraphics();
+		g.setColor(Color.RED);
+		for (Line line : pathFinder.getMap()) 
+		{ 
+			g.drawLine((int)(line.x1/10), (int)(line.y1/10), (int)(line.x2/10), (int)(line.y2/10));
+		}
+		
+		canvas.paint(g); 
+	     
+	   
+		 
+		
 	}
 
 }

@@ -64,12 +64,12 @@ public class UltraSonic implements Behavior {
 		System.out.println("action");
 		LCD.clear();
 		LCD.drawString("Obstacle detected", 0, 5);
-		_sonicMotor.getMotor().rotate(30);
+		_sonicMotor.getMotor().rotate(15);
 		objectRight = _ultrasonicAdapter.getRange() <= 15;
 		Delay.msDelay(1000);
-		_sonicMotor.getMotor().rotate(-60);
+		_sonicMotor.getMotor().rotate(-30);
 		objectLeft = _ultrasonicAdapter.getRange() <= 15;
-		_sonicMotor.getMotor().rotate(30);
+		_sonicMotor.getMotor().rotate(15);
 		_naviPose = _navi.getPoseProvider().getPose();
 		checkHeading();
 		printLine();
@@ -83,15 +83,15 @@ public class UltraSonic implements Behavior {
 			System.out.println("heading: " + _heading);
 			LCD.clear();
 			LCD.drawString("Huge obstacle detected", 0, 5);
+			postion();
 			switch(_heading) {
 			case 0:
-				postion();
 				try {
 					dos.writeUTF("newLine "
 							+(int)(_naviPose.getX()+10) +" " 
-							+(int)(_naviPose.getY()+25) +" "
+							+(int)(_naviPose.getY()+300) +" "
 							+(int)(_naviPose.getX()+10) +" "
-							+((int)_naviPose.getY()-25));
+							+((int)_naviPose.getY()-300));
 					dos.flush();
 
 					Delay.msDelay(100);
@@ -101,12 +101,11 @@ public class UltraSonic implements Behavior {
 				}
 				break;
 			case 1:
-				postion();
 				try {
 					dos.writeUTF("newLine "
-							+(int)(_naviPose.getX()+25) +" " 
+							+(int)(_naviPose.getX()+300) +" " 
 							+(int)(_naviPose.getY()+10) +" "
-							+(int)(_naviPose.getX()-25) +" "
+							+(int)(_naviPose.getX()-300) +" "
 							+(int)(_naviPose.getY()+10));
 					dos.flush();
 
@@ -117,13 +116,12 @@ public class UltraSonic implements Behavior {
 				}
 				break;
 			case 2:
-				postion();
 				try {
 					dos.writeUTF("newLine "
 							+(int)(_naviPose.getX()-10) +" " 
-							+(int)(_naviPose.getY()+25) +" "
+							+(int)(_naviPose.getY()+300) +" "
 							+(int)(_naviPose.getX()-10) +" "
-							+(int)(_naviPose.getY()-25));
+							+(int)(_naviPose.getY()-300));
 					dos.flush();
 
 					Delay.msDelay(100);
@@ -133,12 +131,11 @@ public class UltraSonic implements Behavior {
 				}
 				break;
 			case 3:
-				postion();
 				try {
 					dos.writeUTF("newLine "
-							+(int)(_naviPose.getX()+25) +" " 
+							+(int)(_naviPose.getX()+300) +" " 
 							+(int)(_naviPose.getY()-10) +" "
-							+(int)(_naviPose.getX()-25) +" "
+							+(int)(_naviPose.getX()-300) +" "
 							+(int)(_naviPose.getY()-10));
 					dos.flush();
 
@@ -192,6 +189,7 @@ public class UltraSonic implements Behavior {
 	private void checkHeading() {
 		// TODO Auto-generated method stub
 		int angleOfHeading = (int) _naviPose.getHeading();
+		System.out.println("angle: " + _naviPose.getHeading());
 		switch(((angleOfHeading+45)%360)/90) {
 			case 0://315 too 44
 				_heading = 0;
