@@ -114,10 +114,8 @@ public class Main extends JFrame {
 					
 				    content.append(inputLine);
 				}
-				System.out.println(content);
 				in.close();
 				String order = content.toString();
-				System.out.println(inputLine);
 				if(order!=null||order.contains("userAddress"))
 				{
 				    parts = order.split(",");
