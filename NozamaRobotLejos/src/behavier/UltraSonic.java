@@ -89,9 +89,9 @@ public class UltraSonic implements Behavior {
 				try {
 					dos.writeUTF("newLine "
 							+(int)(_naviPose.getX()+10) +" " 
-							+(int)(_naviPose.getY()+300) +" "
+							+(int)(_naviPose.getY()+350) +" "
 							+(int)(_naviPose.getX()+10) +" "
-							+((int)_naviPose.getY()-300));
+							+((int)_naviPose.getY()-350));
 					dos.flush();
 
 					Delay.msDelay(100);
@@ -103,9 +103,9 @@ public class UltraSonic implements Behavior {
 			case 1:
 				try {
 					dos.writeUTF("newLine "
-							+(int)(_naviPose.getX()+300) +" " 
+							+(int)(_naviPose.getX()+350) +" " 
 							+(int)(_naviPose.getY()+10) +" "
-							+(int)(_naviPose.getX()-300) +" "
+							+(int)(_naviPose.getX()-350) +" "
 							+(int)(_naviPose.getY()+10));
 					dos.flush();
 
@@ -119,9 +119,9 @@ public class UltraSonic implements Behavior {
 				try {
 					dos.writeUTF("newLine "
 							+(int)(_naviPose.getX()-10) +" " 
-							+(int)(_naviPose.getY()+300) +" "
+							+(int)(_naviPose.getY()+350) +" "
 							+(int)(_naviPose.getX()-10) +" "
-							+(int)(_naviPose.getY()-300));
+							+(int)(_naviPose.getY()-350));
 					dos.flush();
 
 					Delay.msDelay(100);
@@ -133,9 +133,9 @@ public class UltraSonic implements Behavior {
 			case 3:
 				try {
 					dos.writeUTF("newLine "
-							+(int)(_naviPose.getX()+300) +" " 
+							+(int)(_naviPose.getX()+350) +" " 
 							+(int)(_naviPose.getY()-10) +" "
-							+(int)(_naviPose.getX()-300) +" "
+							+(int)(_naviPose.getX()-350) +" "
 							+(int)(_naviPose.getY()-10));
 					dos.flush();
 

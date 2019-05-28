@@ -55,7 +55,7 @@ public class Main extends JFrame {
 	Waypoint start = new Waypoint(1000, 1100);
 	
 	int portNumber = 5000;
-	String ipAdress = "192.168.137.253";
+	String ipAdress = "192.168.137.42";
 	DataInputStream dis;
 	DataOutputStream dos;
 	public static void main(String[] args) {
@@ -100,33 +100,39 @@ public class Main extends JFrame {
 	{
 		String[] parts;
 		String[] preDistanations;
-	/*try {
+	try {
 		URL urlOrders = new URL("https://us-central1-nozama-58c5d.cloudfunctions.net/orders");
 		HttpURLConnection con;
 		con = (HttpURLConnection) urlOrders.openConnection();
 		con.setRequestMethod("GET");
+		String inputLine;
 		BufferedReader in = new BufferedReader(
 				  new InputStreamReader(con.getInputStream()));
-				String inputLine;
+				
 				StringBuffer content = new StringBuffer();
 				while ((inputLine = in.readLine()) != null) {
+					
 				    content.append(inputLine);
 				}
+				System.out.println(content);
 				in.close();
-				if(inputLine!=null||inputLine.contains("userAddress"))
+				String order = content.toString();
+				System.out.println(inputLine);
+				if(order!=null||order.contains("userAddress"))
 				{
-				    parts = inputLine.split(",");
+				    parts = order.split(",");
 					for(String attributes: parts)
 					{
 						if(attributes.contains("userAddress"))
 						{
 							preDistanations = attributes.split(":");
 							for(String address: preDistanations)
-							{*/
+							{
+								System.out.println(address);
 								for(String city: cities)
 								{
-									String test = "\"Esbjerg\"";
-									if(test.contains(city))
+									//String test = "\"Esbjerg\"";
+									if(address.contains(city))
 									{
 										switch(city)
 										 {
@@ -149,15 +155,15 @@ public class Main extends JFrame {
 										System.out.println("distanation: "+destionation.getX()+" : "+destionation.getY()); 
 									}
 								}
-							/*}
+							}
 						
 						}
 					}
 				}
-	} catch ( e1) {
+	} catch (Exception e) {
 		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}*/
+		e.printStackTrace();
+	}
 								try {
 									map = new SVGMapLoader(new FileInputStream(filePath)).readLineMap();
 								} catch (FileNotFoundException | XMLStreamException e1) {
